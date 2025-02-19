@@ -1,3 +1,5 @@
+using CorrelationId.DependencyInjection;
+using Logiwa.Web.Extensions;
 using Logiwa.Web.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,12 +12,28 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddControllersWithViews();
-
+        builder.Services.AddControllers().AddNewtonsoftJson();
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("CorsPolicy",
+                builder => builder
+                    .AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader());
+        });
 
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(builder.Configuration["Data:DbContext:DefaultConnection"]));
 
- 
+        builder.Services.AddHttpContextAccessor();
+        builder.Services.AddHttpClients(builder.Configuration);
+        
+        builder.Services.AddDefaultCorrelationId((s) =>
+        {
+            s.RequestHeader = "x-correlationid";
+            s.UpdateTraceIdentifier = true;
+        });
+           
         var app = builder.Build();
 
         if (!app.Environment.IsDevelopment())

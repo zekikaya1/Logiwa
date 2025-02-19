@@ -1,8 +1,8 @@
-﻿using Logiwa.Web.Config;
+﻿using Logiwa.Web.Application.Services;
+using Logiwa.Web.Config;
 using Logiwa.Web.Models;
 using Logiwa.Web.Services;
 using Mapster;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -12,19 +12,21 @@ namespace Logiwa.Web.Controllers;
 public class ProductController : Controller
 {
     private readonly ApplicationDbContext _context;
-    private readonly IMediator _mediator;
-    public ProductController(ApplicationDbContext context, IMediator mediator)
+    private readonly IProductApiClient _productApiClient;
+
+    public ProductController(ApplicationDbContext context, IProductApiClient productApiClient)
     {
         _context = context;
-        _mediator = mediator;
+        _productApiClient = productApiClient;
         MappingConfig.Configure();
     }
 
     public async Task<IActionResult> Index()
     {
+        var response = await _productApiClient.GetProducts();
         var products = await _context.Products
             .Include(p => p.Category)
-            .Where(p => !p.IsDeleted) 
+            .Where(p => !p.IsDeleted)
             .Select(p => p.Adapt<ProductDto>())
             .ToListAsync();
 
@@ -67,7 +69,6 @@ public class ProductController : Controller
 
         return View("Index", products);
     }
-
 
 
     // GET: Product/Create
