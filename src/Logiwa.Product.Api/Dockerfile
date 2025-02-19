@@ -5,10 +5,10 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Logiwa.Product.Api/Logiwa.Product.Api.csproj", "Logiwa.Product.Api/"]
-RUN dotnet restore "Logiwa.Product.Api/Logiwa.Product.Api.csproj"
+COPY ["src/Logiwa.Product.Api/Logiwa.Product.Api.csproj", "src/Logiwa.Product.Api/"]
+RUN dotnet restore "src/Logiwa.Product.Api/Logiwa.Product.Api.csproj"
 COPY . .
-WORKDIR "/src/Logiwa.Product.Api"
+WORKDIR "/src/src/Logiwa.Product.Api"
 RUN dotnet build "Logiwa.Product.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish

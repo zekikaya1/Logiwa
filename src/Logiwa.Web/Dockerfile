@@ -2,14 +2,13 @@
 USER $APP_UID
 WORKDIR /app
 
-
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Logiwa.Web/Logiwa.Web.csproj", "Logiwa.Web/"]
-RUN dotnet restore "Logiwa.Web/Logiwa.Web.csproj"
+COPY ["src/Logiwa.Web/Logiwa.Web.csproj", "src/Logiwa.Web/"]
+RUN dotnet restore "src/Logiwa.Web/Logiwa.Web.csproj"
 COPY . .
-WORKDIR "/src/Logiwa.Web"
+WORKDIR "/src/src/Logiwa.Web"
 RUN dotnet build "Logiwa.Web.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
