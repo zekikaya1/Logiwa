@@ -1,6 +1,8 @@
 ﻿using Logiwa.Application.Models.Product;
+using Logiwa.Application.Queries;
 using Logiwa.Infrastructure.Persistence;
 using Mapster;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,20 +13,17 @@ namespace Logiwa.Product.Api.Controllers;
 public class ProductController : ControllerBase
 {
     private readonly LogiwaDbContext _context;
-
-    public ProductController(LogiwaDbContext context)
+    private readonly IMediator _mediator;
+    public ProductController(LogiwaDbContext context, IMediator mediator)
     {
         _context = context;
+        _mediator = mediator;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var products = await _context.Products
-            .Include(p => p.Category)
-            .Where(p => !p.IsDeleted)
-            .Select(p => p.Adapt<ProductDto>())
-            .ToListAsync();
+        var products = await _mediator.Send(new GetProductsQuery());
 
         return Ok(products);
     }

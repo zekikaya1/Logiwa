@@ -1,5 +1,5 @@
 using System.Linq.Expressions;
-using Application.Repositories;
+using Logiwa.Application.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace Logiwa.Infrastructure.Persistence.Repositories;
@@ -17,7 +17,7 @@ public abstract class GenericRepository<TEntity> : IGenericRepository<TEntity>
     protected DbSet<TEntity> DbSet { get; init; }
 
     public Task<List<TEntity>> Get(Expression<Func<TEntity, bool>> filter = null,
-        Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+        Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
         string includeProperties = "", CancellationToken cancellationToken = default)
     {
         IQueryable<TEntity> query = DbSet;

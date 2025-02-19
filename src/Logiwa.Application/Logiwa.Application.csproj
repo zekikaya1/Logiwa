@@ -7,6 +7,8 @@
     </PropertyGroup>
     
     <ItemGroup>
+        <PackageReference Include="MediatR" Version="12.4.1" />
+        <PackageReference Include="MediatR.Contracts" Version="2.0.1" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
         <PackageReference Include="Mapster" Version="7.4.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.4"/>
@@ -21,5 +23,9 @@
         <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0"/>
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4"/>
         <PackageReference Include="Npgsql.Json.NET" Version="8.0.4"/>
+    </ItemGroup>
+    
+    <ItemGroup>
+      <ProjectReference Include="..\Logiwa.Core\Logiwa.Core.csproj" />
     </ItemGroup>
 </Project>

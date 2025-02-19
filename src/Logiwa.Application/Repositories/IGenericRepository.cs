@@ -1,7 +1,6 @@
 using System.Linq.Expressions;
 
-namespace Application.Repositories;
-
+namespace Logiwa.Application.Repositories;
 public interface IGenericRepository<TEntity> where TEntity : class
 {
     Task<List<TEntity>> Get(

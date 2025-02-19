@@ -1,18 +1,22 @@
-﻿using Mapster;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Logiwa.Web.Config;
 using Logiwa.Web.Models;
-using Logiwa.Web.Config;
 using Logiwa.Web.Services;
+using Mapster;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+
+namespace Logiwa.Web.Controllers;
 
 public class ProductController : Controller
 {
     private readonly ApplicationDbContext _context;
-
-    public ProductController(ApplicationDbContext context)
+    private readonly IMediator _mediator;
+    public ProductController(ApplicationDbContext context, IMediator mediator)
     {
         _context = context;
+        _mediator = mediator;
         MappingConfig.Configure();
     }
 
