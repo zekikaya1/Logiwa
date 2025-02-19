@@ -14,11 +14,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{AB0D9F48-F57
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "src\Logiwa.Product.Api", "src\Logiwa.Product.Api\Logiwa.Product.Api.csproj", "{2DDF6A2E-0C4A-4BB0-ADA4-2F705A7E1242}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logiwa.Application", "Logiwa.Application\Logiwa.Application.csproj", "{F7C9AF24-9F99-4911-9535-A6A3AA120557}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logiwa.Application", "src\Logiwa.Application\Logiwa.Application.csproj", "{F7C9AF24-9F99-4911-9535-A6A3AA120557}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logiwa.Core", "Logiwa.Core\Logiwa.Core.csproj", "{402E2840-7E5D-473A-B96C-501B35344973}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logiwa.Core", "src\Logiwa.Core\Logiwa.Core.csproj", "{402E2840-7E5D-473A-B96C-501B35344973}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logiwa.Infrastructure", "Logiwa.Infrastructure\Logiwa.Infrastructure.csproj", "{DF57518F-A10B-4527-B54A-C34E633AB4D2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logiwa.Infrastructure", "src\Logiwa.Infrastructure\Logiwa.Infrastructure.csproj", "{DF57518F-A10B-4527-B54A-C34E633AB4D2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -27,9 +27,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Logiwa.Application\Logiwa.Application.csproj" />
-      <ProjectReference Include="..\..\Logiwa.Core\Logiwa.Core.csproj" />
-      <ProjectReference Include="..\..\Logiwa.Infrastructure\Logiwa.Infrastructure.csproj" />
+      <ProjectReference Include="..\Logiwa.Application\Logiwa.Application.csproj" />
+      <ProjectReference Include="..\Logiwa.Core\Logiwa.Core.csproj" />
+      <ProjectReference Include="..\Logiwa.Infrastructure\Logiwa.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>
