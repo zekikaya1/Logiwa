@@ -1,0 +1,19 @@
+﻿using Logiwa.Web.Models;
+using Mapster;
+
+namespace Logiwa.Web.Config;
+
+public class MappingConfig
+{
+    public static void Configure()
+    {
+        TypeAdapterConfig<Product, ProductDto>.NewConfig()
+            .Map(dest => dest.CategoryName, src => src.Category.Name)
+            .Map(dest => dest.StockQuantity, src => src.StockQuantity); // Yeni alan ekledik
+
+        TypeAdapterConfig<Category, CategoryDto>.NewConfig();
+        
+    
+    }
+    
+}

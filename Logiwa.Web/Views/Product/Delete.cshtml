@@ -1,0 +1,21 @@
+﻿@using Logiwa.Web.Models
+@model Logiwa.Web.Models.ProductDto
+
+<h2 class="text-center mb-5">Delete Product</h2>
+
+<div class="alert alert-warning">
+    <h4 class="alert-heading">Are you sure you want to delete this product?</h4>
+    <p><strong>Product Name:</strong> @Model.Name</p>
+    <p><strong>Category:</strong> @Model.CategoryName</p>
+    <p><strong>Stock Quantity:</strong> @Model.StockQuantity</p>
+</div>
+
+<form asp-action="DeleteConfirmed" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <div class="form-group">
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a class="btn btn-secondary" href="@Url.Action("Index", "Product")">Cancel</a>
+    </div>
+</form>
+

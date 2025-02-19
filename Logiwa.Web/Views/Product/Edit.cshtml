@@ -1,0 +1,48 @@
+﻿@using Logiwa.Web.Models
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Logiwa.Web.Models.ProductDto
+
+<h2 class="text-center mb-5">Edit Product</h2>
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="Name">Product Title</label>
+        <input type="text" asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label for="Description">Product Description</label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label for="CategoryId">Category</label>
+        <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.Categories">
+            <option value="">Select Category</option>
+        </select>
+        <span asp-validation-for="CategoryId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label for="StockQuantity">Stock Quantity</label>
+        <input type="number" asp-for="StockQuantity" class="form-control" />
+        <span asp-validation-for="StockQuantity" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label for="UpdatedDate">Updated Date</label>
+        <input type="text" asp-for="UpdatedDate" class="form-control" disabled />
+    </div>
+
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+    </div>
+</form>
+
+<a class="btn btn-secondary" href="@Url.Action("Index", "Product")">Back to Product List</a>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

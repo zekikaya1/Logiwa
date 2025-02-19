@@ -1,0 +1,42 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35013.160
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logiwa.Web", "Logiwa.Web\Logiwa.Web.csproj", "{64BF8A92-AC69-4B37-8612-3E648B6BC2EB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "deploy", "deploy", "{C62B8058-D21D-4F15-B250-9EB897375C00}"
+	ProjectSection(SolutionItems) = preProject
+		compose.yaml = compose.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{AB0D9F48-F576-48B3-AE83-BD18C364B5C2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logiwa.Product.Api", "Logiwa.Product.Api\Logiwa.Product.Api.csproj", "{2DDF6A2E-0C4A-4BB0-ADA4-2F705A7E1242}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{64BF8A92-AC69-4B37-8612-3E648B6BC2EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64BF8A92-AC69-4B37-8612-3E648B6BC2EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64BF8A92-AC69-4B37-8612-3E648B6BC2EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64BF8A92-AC69-4B37-8612-3E648B6BC2EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2DDF6A2E-0C4A-4BB0-ADA4-2F705A7E1242}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DDF6A2E-0C4A-4BB0-ADA4-2F705A7E1242}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DDF6A2E-0C4A-4BB0-ADA4-2F705A7E1242}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DDF6A2E-0C4A-4BB0-ADA4-2F705A7E1242}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D0707AFD-1855-4765-BBEF-2B87E6D799AC}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{64BF8A92-AC69-4B37-8612-3E648B6BC2EB} = {AB0D9F48-F576-48B3-AE83-BD18C364B5C2}
+		{2DDF6A2E-0C4A-4BB0-ADA4-2F705A7E1242} = {AB0D9F48-F576-48B3-AE83-BD18C364B5C2}
+	EndGlobalSection
+EndGlobal
