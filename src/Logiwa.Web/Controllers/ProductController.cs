@@ -1,12 +1,7 @@
-﻿
-using Mapster;
+﻿using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Logiwa.Web.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Logiwa.Web.Config;
 using Logiwa.Web.Services;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -18,27 +13,65 @@ public class ProductController : Controller
     public ProductController(ApplicationDbContext context)
     {
         _context = context;
-        MappingConfig.Configure(); // Mapster Konfigürasyonu burada uygulanacak
+        MappingConfig.Configure();
     }
 
-    // GET: Product
     public async Task<IActionResult> Index()
     {
         var products = await _context.Products
             .Include(p => p.Category)
-            .Where(p => !p.IsDeleted)
+            .Where(p => !p.IsDeleted) 
+            .Select(p => p.Adapt<ProductDto>())
             .ToListAsync();
 
-        var productDtos = products.Adapt<List<ProductDto>>(); // Mapster Adapt kullanımı
-        return View(productDtos);
+        return View(products);
     }
+
+    public async Task<IActionResult> Search(string searchKeyword, int? minStock, int? maxStock)
+    {
+        var productsQuery = _context.Products
+            .Include(p => p.Category)
+            .Where(p => !p.IsDeleted);
+
+        if (!string.IsNullOrEmpty(searchKeyword))
+        {
+            string keyword = searchKeyword.Trim().ToLower(); // Kullanıcının girdiği kelimeyi normalize et
+
+            productsQuery = productsQuery.Where(p =>
+                p.Name.ToLower().Contains(keyword) ||
+                p.Description.ToLower().Contains(keyword) ||
+                p.Category.Name.ToLower().Contains(keyword));
+        }
+
+        if (minStock.HasValue)
+        {
+            productsQuery = productsQuery.Where(p => p.StockQuantity >= minStock.Value);
+        }
+
+        if (maxStock.HasValue)
+        {
+            productsQuery = productsQuery.Where(p => p.StockQuantity <= maxStock.Value);
+        }
+
+        ViewData["searchKeyword"] = searchKeyword;
+        ViewData["minStock"] = minStock?.ToString() ?? "";
+        ViewData["maxStock"] = maxStock?.ToString() ?? "";
+
+        var products = await productsQuery
+            .Select(p => p.Adapt<ProductDto>())
+            .ToListAsync();
+
+        return View("Index", products);
+    }
+
+
 
     // GET: Product/Create
     public async Task<IActionResult> Create()
     {
         ViewBag.Categories =
             (await _context.Categories.Where(c => !c.IsDeleted).ToListAsync())
-            .Adapt<List<CategoryDto>>(); // Mapster Adapt kullanımı
+            .Adapt<List<CategoryDto>>();
         return View(new ProductDto());
     }
 
@@ -48,7 +81,7 @@ public class ProductController : Controller
     {
         if (ModelState.IsValid)
         {
-            var product = productDto.Adapt<Product>(); // Mapster Adapt kullanımı
+            var product = productDto.Adapt<Product>();
             product.CreatedDate = DateTime.UtcNow;
             product.UpdatedDate = DateTime.UtcNow;
 
@@ -58,7 +91,7 @@ public class ProductController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        // Kategorileri ViewBag'e atıyoruz
+
         ViewBag.Categories = (await _context.Categories.Where(c => !c.IsDeleted).ToListAsync())
             .Adapt<List<CategoryDto>>();
 
@@ -74,10 +107,8 @@ public class ProductController : Controller
             return NotFound();
         }
 
-        var productDto = product.Adapt<ProductDto>(); // Mapster Adapt kullanımı
-        /*ViewBag.Categories =
-            (await _context.Categories.Where(c => !c.IsDeleted).ToListAsync())
-            .Adapt<List<CategoryDto>>(); // Mapster Adapt kullanımı*/
+        var productDto = product.Adapt<ProductDto>();
+
         ViewBag.Categories = new SelectList(await _context.Categories.Where(c => !c.IsDeleted).ToListAsync(), "Id",
             "Name", productDto.CategoryId);
 
@@ -96,7 +127,7 @@ public class ProductController : Controller
 
         if (ModelState.IsValid)
         {
-            var product = productDto.Adapt<Product>(); // Mapster Adapt kullanımı
+            var product = productDto.Adapt<Product>();
             product.UpdatedDate = DateTime.UtcNow;
 
             _context.Update(product);
@@ -107,36 +138,16 @@ public class ProductController : Controller
         {
             foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
             {
-                Console.WriteLine(error.ErrorMessage); // Konsola hataları yazdırın veya loglayın
+                Console.WriteLine(error.ErrorMessage);
             }
 
             ViewBag.Categories =
                 (await _context.Categories.Where(c => !c.IsDeleted).ToListAsync())
-                .Adapt<List<CategoryDto>>(); // Mapster Adapt kullanımı
+                .Adapt<List<CategoryDto>>();
         }
 
         return View(productDto);
     }
-
-
-    /*// POST: Product/Delete/5
-    [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int id)
-    {
-        var product = await _context.Products.FindAsync(id);
-        if (product == null)
-        {
-            return NotFound();
-        }
-
-        product.IsDeleted = true;
-        product.UpdatedDate = DateTime.UtcNow;
-
-        _context.Update(product);
-        await _context.SaveChangesAsync();
-        return RedirectToAction(nameof(Index));
-    }*/
 
     [HttpGet]
     public async Task<IActionResult> Delete(int id)
@@ -150,8 +161,8 @@ public class ProductController : Controller
             return NotFound();
         }
 
-        var productDto = product.Adapt<ProductDto>(); // DTO'ya dönüştürülmesi
-        return View(productDto); // Silme sayfasını yükle
+        var productDto = product.Adapt<ProductDto>();
+        return View(productDto);
     }
 
 // POST: Product/Delete/{id}
@@ -167,9 +178,9 @@ public class ProductController : Controller
 
         product.IsDeleted = true;
         product.UpdatedDate = DateTime.UtcNow;
-        _context.Products.Update(product); // Ürünü sil
-        await _context.SaveChangesAsync(); // Değişiklikleri kaydet
+        _context.Products.Update(product);
+        await _context.SaveChangesAsync();
 
-        return RedirectToAction(nameof(Index)); // Silme işleminden sonra listeye dön
+        return RedirectToAction(nameof(Index));
     }
 }

@@ -1,21 +1,46 @@
 ﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model List<Logiwa.Web.Models.ProductDto>
 
-<h2 class="text-center mb-5">List of Products</h2>
+<h2 class="text-center mb-4">List of Products</h2>
 
-<div class="row mb-5">
-    <div class="col">
-        <a class="btn btn-primary" asp-controller="Product" asp-action="Create">New Product</a>
+<!-- Search & Filter Form -->
+<form method="get" asp-action="Search" class="mb-3">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-3">
+            <label for="searchKeyword" class="form-label">Search</label>
+            <input type="text" class="form-control form-control-sm" id="searchKeyword" name="searchKeyword"
+                   placeholder="Title, Description, or Category" value="@ViewData["searchKeyword"]" />
+        </div>
+        <div class="col-md-2">
+            <label for="minStock" class="form-label">Min Stock</label>
+            <input type="number" class="form-control form-control-sm" id="minStock" name="minStock"
+                   value="@ViewData["minStock"]" min="0" />
+        </div>
+        <div class="col-md-2">
+            <label for="maxStock" class="form-label">Max Stock</label>
+            <input type="number" class="form-control form-control-sm" id="maxStock" name="maxStock"
+                   value="@ViewData["maxStock"]" min="0" />
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-sm btn-primary">Apply Filters</button>
+            <a href="@Url.Action("Index", "Product")" class="btn btn-sm btn-secondary">Reset</a>
+        </div>
     </div>
+</form>
+
+<!-- Add New Product -->
+<div class="mb-3">
+    <a class="btn btn-sm btn-success" asp-controller="Product" asp-action="Create">New Product</a>
 </div>
 
-<table class="table">
+<!-- Product Table -->
+<table class="table table-sm table-striped">
     <thead>
     <tr>
         <th>ID</th>
         <th>Title</th>
-        <th>Description</th>
         <th>Category</th>
+        <th>Stock Quantity</th>
         <th>Created At</th>
         <th>Actions</th>
     </tr>
@@ -26,12 +51,12 @@
         <tr>
             <td>@product.Id</td>
             <td>@product.Name</td>
-            <td>@product.Description</td>
             <td>@product.CategoryName</td>
+            <td>@product.StockQuantity</td>
             <td>@product.CreatedDate.ToString("yyyy-MM-dd")</td>
             <td>
-                <a class="btn btn-primary btn-sm" asp-action="Edit" asp-route-id="@product.Id">Edit</a>
-                <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@product.Id">Delete</a>
+                <a class="btn btn-sm btn-primary" asp-action="Edit" asp-route-id="@product.Id">Edit</a>
+                <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@product.Id">Delete</a>
             </td>
         </tr>
     }
