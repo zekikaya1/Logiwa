@@ -4,7 +4,7 @@ namespace Logiwa.Application.Models.Product;
 
 public class ProductDto
 {
-    public int Id { get; set; }
+    public long Id { get; set; }
 
     public string Name { get; set; }
 
@@ -15,6 +15,7 @@ public class ProductDto
     public int CategoryId { get; set; }
 
     public string? CategoryName { get; set; }
+    public bool IsDeleted { get; set; }
 
     public DateTime CreatedDate { get; set; }
     public DateTime UpdatedDate { get; set; }

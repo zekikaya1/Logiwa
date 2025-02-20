@@ -45,6 +45,8 @@ public class Startup
 
         services.AddScoped<IValidator<CreateProductCommand>, CreateProductCommandValidator>();
         services.AddScoped<IValidator<UpdateProductCommand>, UpdateProductCommandValidator>();
+        services.AddScoped<IValidator<DeleteProductCommand>, DeleteProductCommandValidator>();
+
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

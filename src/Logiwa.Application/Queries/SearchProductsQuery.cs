@@ -6,13 +6,13 @@ using Mapster;
 
 namespace Logiwa.Application.Queries;
 
-public class SearchProductsQuery : IRequest<List<ProductDto>>
+public class GetProductsQueryBySearch : IRequest<List<ProductDto>>
 {
     public string? SearchKeyword { get; set; }
     public int? MinStock { get; set; }
     public int? MaxStock { get; set; }
 
-    public SearchProductsQuery(string? searchKeyword, int? minStock, int? maxStock)
+    public GetProductsQueryBySearch(string? searchKeyword, int? minStock, int? maxStock)
     {
         SearchKeyword = searchKeyword;
         MinStock = minStock;
@@ -20,7 +20,7 @@ public class SearchProductsQuery : IRequest<List<ProductDto>>
     }
 }
 
-public class SearchProductsHandler : IRequestHandler<SearchProductsQuery, List<ProductDto>>
+public class SearchProductsHandler : IRequestHandler<GetProductsQueryBySearch, List<ProductDto>>
 {
     private readonly IProductRepository _productRepository;
 
@@ -29,7 +29,7 @@ public class SearchProductsHandler : IRequestHandler<SearchProductsQuery, List<P
         _productRepository = productRepository;
     }
 
-    public async Task<List<ProductDto>> Handle(SearchProductsQuery request, CancellationToken cancellationToken)
+    public async Task<List<ProductDto>> Handle(GetProductsQueryBySearch request, CancellationToken cancellationToken)
     {
         List<Product> products;
 

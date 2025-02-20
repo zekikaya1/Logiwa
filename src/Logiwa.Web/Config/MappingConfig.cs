@@ -9,7 +9,7 @@ public static class MappingConfig
     {
         TypeAdapterConfig<Product, ProductDto>.NewConfig()
             .Map(dest => dest.CategoryName, src => src.Category.Name)
-            .Map(dest => dest.StockQuantity, src => src.StockQuantity); // Yeni alan ekledik
+            .Map(dest => dest.StockQuantity, src => src.StockQuantity);
 
         TypeAdapterConfig<Category, CategoryDto>.NewConfig();
         

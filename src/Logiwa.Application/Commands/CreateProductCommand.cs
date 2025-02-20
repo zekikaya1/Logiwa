@@ -5,7 +5,7 @@ namespace Logiwa.Application.Commands;
 
 public class CreateProductCommand :IRequest<Unit>
 {
-    public int Id { get; set; }
+    public long Id { get; set; }
 
     public string Name { get; set; }
 

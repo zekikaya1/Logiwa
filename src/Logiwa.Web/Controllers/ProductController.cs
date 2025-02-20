@@ -74,44 +74,59 @@ public class ProductController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(ProductDto productDto)
     {
-        if (ModelState.IsValid)
+        try
         {
-            var product = productDto.Adapt<Product>();
-            product.CreatedDate = DateTime.UtcNow;
-            product.UpdatedDate = DateTime.UtcNow;
+            if (ModelState.IsValid)
+            {
+                var product = productDto.Adapt<Product>();
+                product.CreatedDate = DateTime.UtcNow;
+                product.UpdatedDate = DateTime.UtcNow;
 
+                await _productApiClient.CreateProduct(productDto);
+                _logger.LogInformation("Product created successfully.");
+                return RedirectToAction(nameof(Index));
+            }
 
-            await _productApiClient.CreateProduct(productDto);
-            _logger.LogInformation("Product created successfully.");
-            return RedirectToAction(nameof(Index));
+            var categoriesResponse = await _categoryApiClient.GetCategoriesAsync();
+            var categories = categoriesResponse.Adapt<List<CategoryDto>>();
+
+            ViewBag.Categories = categories;
+            return View(productDto);
         }
-
-        var categoriesResponse = await _categoryApiClient.GetCategoriesAsync();
-        var categories = categoriesResponse.Adapt<List<CategoryDto>>();
-
-        ViewBag.Categories = categories;
-        return View(productDto);
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error occurred while creating the product: {ex.Message}");
+            return RedirectToAction("Index", "Error");
+        }
     }
 
     public async Task<IActionResult> Edit(long id)
     {
-        var productResponse = await _productApiClient.GetProductById(id);
-        if (productResponse == null || productResponse.IsDeleted)
+        try
         {
-            return NotFound();
+            var productResponse = await _productApiClient.GetProductById(id);
+            if (productResponse == null || productResponse.IsDeleted)
+            {
+                return NotFound();
+            }
+
+            var productDto = productResponse.Adapt<ProductDto>();
+
+            var categoriesResponse = await _categoryApiClient.GetCategoriesAsync();
+            var categories = categoriesResponse.Adapt<List<CategoryDto>>();
+
+            ViewBag.Categories = categories;
+
+            ViewBag.Categories = new SelectList(categories, "Id",
+                "Name", productDto.CategoryId);
+
+            return View(productDto);
         }
-
-        var productDto = productResponse.Adapt<ProductDto>();
-
-        var categoriesResponse = await _categoryApiClient.GetCategoriesAsync();
-        var categories = categoriesResponse.Adapt<List<CategoryDto>>();
-
-        ViewBag.Categories = categories;
-
-        ViewBag.Categories = new SelectList(categories, "Id",
-            "Name", productDto.CategoryId);
-
-        return View(productDto);
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error occurred while creating the product: {ex.Message}");
+            return RedirectToAction("InternalServerError", "Error");
+        }
     }
 
     [HttpPost]
@@ -162,6 +177,7 @@ public class ProductController : Controller
         }
 
         var productDto = productResponse.Adapt<ProductDto>();
+
         return View(productDto);
     }
 
@@ -169,17 +185,24 @@ public class ProductController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(long id)
     {
-        var productResponse = await _productApiClient.GetProductById(id);
-        if (productResponse == null)
+        try
         {
-            return NotFound();
+            var productResponse = await _productApiClient.GetProductById(id);
+            if (productResponse == null)
+            {
+                return NotFound();
+            }
+
+            productResponse.IsDeleted = true;
+            productResponse.UpdatedDate = DateTime.UtcNow;
+            await _productApiClient.DeleteProduct(id);
+
+            return RedirectToAction(nameof(Index));
         }
-
-        productResponse.IsDeleted = true;
-        productResponse.UpdatedDate = DateTime.UtcNow;
-        await _productApiClient.UpdateProduct(id, productResponse);
-
-
-        return RedirectToAction(nameof(Index));
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error occurred while creating the product: {ex.Message}");
+            return RedirectToAction("InternalServerError", "Error");
+        }
     }
 }

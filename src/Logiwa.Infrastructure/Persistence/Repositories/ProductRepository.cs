@@ -4,18 +4,16 @@ using Logiwa.Core.Entities;
 
 namespace Logiwa.Infrastructure.Persistence.Repositories;
 
-using Microsoft.Extensions.Configuration;
-
 public class ProductRepository : GenericRepository<Product>, IProductRepository
 {
-    public ProductRepository(LogiwaDbContext dbContext, IConfiguration configuration)
+    public ProductRepository(LogiwaDbContext dbContext)
         : base(dbContext)
     {
     }
 
     public async Task<bool> HasAnyProductByName(string productName )
     {
-        var result = await Get(x => x.Name == productName);
+        var result = await Get(x => x.Name.ToLower() == productName.ToLower());
         return result is {Count: > 0};
     }
 
@@ -23,6 +21,15 @@ public class ProductRepository : GenericRepository<Product>, IProductRepository
     {
         var result = await Get(x => x.Id == productId);
         return result is {Count: > 0};
+    }
+    
+    public async Task<Product> GetProductById(long productId, CancellationToken cancellationToken)
+    {
+        return await GetSingleAsync(
+            ApplyBusinessRules(p => p.Id == productId),
+            "Category",
+            cancellationToken
+        );
     }
 
     public async Task<List<Product>> GetProducts(CancellationToken cancellationToken)

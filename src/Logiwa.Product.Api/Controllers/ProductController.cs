@@ -13,13 +13,11 @@ namespace Logiwa.Product.Api.Controllers;
 [Route("api/products")]
 public class ProductController : ControllerBase
 {
-    private readonly LogiwaDbContext _context;
-    private readonly IMediator _mediator;
+   private readonly IMediator _mediator;
     private readonly ILogger<ProductController> _logger;
 
-    public ProductController(LogiwaDbContext context, IMediator mediator, ILogger<ProductController> logger)
+    public ProductController(IMediator mediator, ILogger<ProductController> logger)
     {
-        _context = context;
         _mediator = mediator;
         _logger = logger;
     }
@@ -45,7 +43,7 @@ public class ProductController : ControllerBase
     {
         try
         {
-            var products = await _mediator.Send(new SearchProductsQuery(searchKeyword, minStock, maxStock));
+            var products = await _mediator.Send(new GetProductsQueryBySearch(searchKeyword, minStock, maxStock));
             return Ok(products);
         }
         catch (Exception ex)
@@ -59,15 +57,12 @@ public class ProductController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(long id)
     {
-        var product = await _context.Products
-            .Include(p => p.Category)
-            .Where(p => p.Id == id && !p.IsDeleted)
-            .FirstOrDefaultAsync();
-
-        if (product == null)
+        var products = await _mediator.Send(new GetQueryProductById(id));
+     
+        if (products == null)
             return NotFound(new { Message = "Product not found" });
 
-        return Ok(product.Adapt<ProductDto>());
+        return Ok(products);
     }
 
     [HttpPost]
@@ -96,14 +91,17 @@ public class ProductController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(long id)
     {
-        var product = await _context.Products.FindAsync(id);
-        if (product == null || product.IsDeleted)
+        var products = await _mediator.Send(new GetQueryProductById(id));
+     
+        if (products == null || products.IsDeleted)
             return NotFound(new { Message = "Product not found" });
 
-        product.IsDeleted = true;
-        product.UpdatedDate = DateTime.UtcNow;
+        products.IsDeleted = true;
+        products.UpdatedDate = DateTime.UtcNow;
 
-        await _context.SaveChangesAsync();
+        var deleteProductCommand = products.Adapt<DeleteProductCommand>();
+        deleteProductCommand.Id = id;
+        await _mediator.Send(deleteProductCommand);
         return NoContent();
     }
 }
