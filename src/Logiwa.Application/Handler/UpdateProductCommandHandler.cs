@@ -57,7 +57,8 @@ namespace Logiwa.Application.Handler
                 existingProduct.CategoryId = request.CategoryId;
                 existingProduct.Description = request.Description;
                 existingProduct.UpdatedDate = DateTime.UtcNow;
-
+                existingProduct.StockQuantity = request.StockQuantity;
+                
                 _productRepository.Update(existingProduct);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 

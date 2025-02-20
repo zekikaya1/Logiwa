@@ -69,7 +69,6 @@ public class ProductController : ControllerBase
     public async Task<IActionResult> Create([FromBody] ProductDto productDto)
     {
         var createProductCommand = productDto.Adapt<CreateProductCommand>();
-        createProductCommand.CreatedDate = DateTime.UtcNow;
 
         await _mediator.Send(createProductCommand);
 

@@ -53,6 +53,7 @@ public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand,
             }
 
             var product = request.Adapt<Product>();
+            product.UpdatedDate = DateTime.UtcNow;
 
             await _productRepository.Insert(product, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
