@@ -15,22 +15,49 @@ public class ProductController : ControllerBase
 {
     private readonly LogiwaDbContext _context;
     private readonly IMediator _mediator;
-    public ProductController(LogiwaDbContext context, IMediator mediator)
+    private readonly ILogger<ProductController> _logger;
+
+    public ProductController(LogiwaDbContext context, IMediator mediator, ILogger<ProductController> logger)
     {
         _context = context;
         _mediator = mediator;
+        _logger = logger;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var products = await _mediator.Send(new GetProductsQuery());
+        try
+        {
+            var products = await _mediator.Send(new GetProductsQuery());
 
-        return Ok(products);
+            return Ok(products);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while searching for products.");
+            return StatusCode(500, "Internal Server Error");
+        }
     }
 
+    [HttpGet("search")]
+    public async Task<IActionResult> Search([FromQuery] string? searchKeyword, [FromQuery] int? minStock, [FromQuery] int? maxStock)
+    {
+        try
+        {
+            var products = await _mediator.Send(new SearchProductsQuery(searchKeyword, minStock, maxStock));
+            return Ok(products);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while searching for products.");
+            return StatusCode(500, "Internal Server Error");
+        }
+    }
+
+
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<IActionResult> GetById(long id)
     {
         var product = await _context.Products
             .Include(p => p.Category)
@@ -51,22 +78,23 @@ public class ProductController : ControllerBase
 
         await _mediator.Send(createProductCommand);
 
-        return CreatedAtAction(nameof(GetById), new { id = createProductCommand.Id }, createProductCommand.Adapt<ProductDto>());
+        return CreatedAtAction(nameof(GetById), new { id = createProductCommand.Id },
+            createProductCommand.Adapt<ProductDto>());
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] ProductDto productDto)
+    public async Task<IActionResult> Update(long id, [FromBody] ProductDto productDto)
     {
         var updateProductCommand = productDto.Adapt<UpdateProductCommand>();
         updateProductCommand.Id = id;
-        
+
         await _mediator.Send(updateProductCommand);
 
         return Ok(new { Message = "Product updated successfully", Data = updateProductCommand });
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> Delete(long id)
     {
         var product = await _context.Products.FindAsync(id);
         if (product == null || product.IsDeleted)

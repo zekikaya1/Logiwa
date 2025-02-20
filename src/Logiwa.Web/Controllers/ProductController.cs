@@ -43,43 +43,23 @@ public class ProductController : Controller
 
     public async Task<IActionResult> Search(string searchKeyword, int? minStock, int? maxStock)
     {
-        var productsQuery = _context.Products
-            .Include(p => p.Category)
-            .Where(p => !p.IsDeleted);
-
-        if (!string.IsNullOrEmpty(searchKeyword))
+        try
         {
-            string keyword = searchKeyword.Trim().ToLower();
+            var products = await _productApiClient.SearchProducts(searchKeyword, minStock, maxStock);
 
-            productsQuery = productsQuery.Where(p =>
-                p.Name.ToLower().Contains(keyword) ||
-                p.Description.ToLower().Contains(keyword) ||
-                p.Category.Name.ToLower().Contains(keyword));
+            ViewData["searchKeyword"] = searchKeyword;
+            ViewData["minStock"] = minStock?.ToString() ?? "";
+            ViewData["maxStock"] = maxStock?.ToString() ?? "";
+
+            return View("Index", products);
         }
-
-        if (minStock.HasValue)
+        catch (Exception ex)
         {
-            productsQuery = productsQuery.Where(p => p.StockQuantity >= minStock.Value);
+            _logger.LogError(ex, "An error occurred while searching for products.");
+            return View("Error");
         }
-
-        if (maxStock.HasValue)
-        {
-            productsQuery = productsQuery.Where(p => p.StockQuantity <= maxStock.Value);
-        }
-
-        ViewData["searchKeyword"] = searchKeyword;
-        ViewData["minStock"] = minStock?.ToString() ?? "";
-        ViewData["maxStock"] = maxStock?.ToString() ?? "";
-
-        var products = await productsQuery
-            .Select(p => p.Adapt<ProductDto>())
-            .ToListAsync();
-
-        return View("Index", products);
     }
 
-
-    // GET: Product/Create
     public async Task<IActionResult> Create()
     {
         ViewBag.Categories =
@@ -97,10 +77,10 @@ public class ProductController : Controller
             var product = productDto.Adapt<Product>();
             product.CreatedDate = DateTime.UtcNow;
             product.UpdatedDate = DateTime.UtcNow;
-
-            _context.Add(product);
-            await _context.SaveChangesAsync();
-
+      
+            
+            await _productApiClient.CreateProduct(productDto);
+            _logger.LogInformation("Product created successfully.");
             return RedirectToAction(nameof(Index));
         }
 
@@ -111,8 +91,7 @@ public class ProductController : Controller
         return View(productDto);
     }
 
-    // GET: Product/Edit/5
-    public async Task<IActionResult> Edit(int id)
+    public async Task<IActionResult> Edit(long id)
     {
         var product = await _context.Products.FindAsync(id);
         if (product == null || product.IsDeleted)
@@ -131,7 +110,7 @@ public class ProductController : Controller
     // POST: Product/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, ProductDto productDto)
+    public async Task<IActionResult> Edit(long id, ProductDto productDto)
     {
         if (id != productDto.Id)
         {
@@ -140,11 +119,16 @@ public class ProductController : Controller
 
         if (ModelState.IsValid)
         {
-            var product = productDto.Adapt<Product>();
-            product.UpdatedDate = DateTime.UtcNow;
-
-            _context.Update(product);
-            await _context.SaveChangesAsync();
+            var productResponse = await _productApiClient.GetProductById(id);
+            
+            if (productResponse == null)
+            {
+                return NotFound();
+            }
+            
+            productResponse.UpdatedDate = DateTime.UtcNow;
+             await _productApiClient.UpdateProduct(id,productDto);
+            
             return RedirectToAction(nameof(Index));
         }
         else
@@ -163,7 +147,7 @@ public class ProductController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> Delete(long id)
     {
         var product = await _context.Products
             .Include(p => p.Category)
@@ -180,18 +164,18 @@ public class ProductController : Controller
     
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int id)
+    public async Task<IActionResult> DeleteConfirmed(long id)
     {
-        var product = await _context.Products.FindAsync(id);
-        if (product == null)
+        var productResponse = await _productApiClient.GetProductById(id);
+        if (productResponse == null)
         {
             return NotFound();
         }
 
-        product.IsDeleted = true;
-        product.UpdatedDate = DateTime.UtcNow;
-        _context.Products.Update(product);
-        await _context.SaveChangesAsync();
+        productResponse.IsDeleted = true;
+        productResponse.UpdatedDate = DateTime.UtcNow;
+        await _productApiClient.UpdateProduct(id,productResponse);
+
 
         return RedirectToAction(nameof(Index));
     }

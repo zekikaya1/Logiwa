@@ -26,22 +26,16 @@ public class ProductDto :IValidatableObject
 
     public DateTime CreatedDate { get; set; }
     public DateTime UpdatedDate { get; set; }
+    public bool IsDeleted { get; set; }
+
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        // Eğer Edit işlemi ise, CategoryName zorunlu değil.
         if (validationContext.ObjectInstance is ProductDto productDto)
         {
-            if (productDto.Id > 0) // Edit işlemi olduğunu varsayıyoruz
+            if (productDto.Id > 0) 
             {
-                // Edit işlemi sırasında CategoryName gerekmiyor
                 yield break;
             }
         }
-
-        // Create işlemi için CategoryName zorunlu
-        /*if (string.IsNullOrEmpty(CategoryName))
-        {
-            yield return new ValidationResult("Category Name is required for Create operation.", new[] { "CategoryName" });
-        }*/
     }
 }

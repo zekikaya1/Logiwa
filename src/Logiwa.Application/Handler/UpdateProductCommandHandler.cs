@@ -1,13 +1,15 @@
 ﻿using FluentValidation;
 using Logiwa.Application.Commands;
 using Logiwa.Application.Exceptions;
+using Logiwa.Application.Models.Product;
 using Logiwa.Application.Repositories;
+using Mapster;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Logiwa.Application.Handler
 {
-    public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand, Unit>
+    public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand, ProductDto>
     {
         private readonly IProductRepository _productRepository;
         private readonly IValidator<UpdateProductCommand> _validator;
@@ -26,7 +28,7 @@ namespace Logiwa.Application.Handler
             _logger = logger;
         }
 
-        public async Task<Unit> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
+        public async Task<ProductDto> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Handling UpdateProductCommand for Product Id: {request.Id}");
 
@@ -62,7 +64,7 @@ namespace Logiwa.Application.Handler
                 _unitOfWork.CommitTransaction();
 
                 _logger.LogInformation("Product update completed successfully.");
-                return Unit.Value;
+                return existingProduct.Adapt<ProductDto>(); 
             }
             catch (ValidationException vex)
             {
