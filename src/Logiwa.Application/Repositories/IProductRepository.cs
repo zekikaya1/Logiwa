@@ -4,6 +4,8 @@ namespace Logiwa.Application.Repositories;
 
 public interface IProductRepository : IGenericRepository<Product>
 {
+    public Task<bool> HasAnyProductByName(string productName);
+    public Task<bool> HasAnyProductById(long productId);
     public Task<List<Product>> GetProducts(CancellationToken cancellationToken);
     
     Task<List<Product>> GetProductsByStockRange(int minStock, int maxStock, CancellationToken cancellationToken);

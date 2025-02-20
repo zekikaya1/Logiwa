@@ -1,11 +1,14 @@
-﻿using FluentValidation.AspNetCore;
-using Logiwa.Application.Commands;
+﻿using System.Reflection;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using Logiwa.Application.Commands; 
 using Logiwa.Application.Repositories;
 using Logiwa.Application.Validators;
 using Logiwa.Infrastructure.Persistence;
 using Logiwa.Infrastructure.Persistence.Repositories;
 using Logiwa.Product.Api.Extensions;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace Logiwa.Product.Api;
 
@@ -21,13 +24,21 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {           
  
+        var assembly = typeof(CreateProductCommandValidator).Assembly;
+        Console.WriteLine($"Loading Validators from Assembly: {assembly.FullName}");
+        services.AddValidatorsFromAssembly(assembly);
+        
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateProductCommand).Assembly));
 
-        services.AddControllers()
+        /*services.AddControllers()
             .AddFluentValidation(fv =>
             {
-                fv.RegisterValidatorsFromAssemblyContaining<ProductDtoValidator>();
-            });
+                fv.RegisterValidatorsFromAssemblyContaining<CreateProductCommandValidator>();
+            });*/
+      //  services.AddValidatorsFromAssembly(typeof(CreateProductCommandValidator).Assembly);
+ 
+     //   services.AddFluentValidationAutoValidation();
+
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
         services.AddMapsterConfig();
@@ -36,6 +47,13 @@ public class Startup
             options.UseNpgsql(Configuration["Data:DbContext:DefaultConnection"]));
         
         services.AddTransient<IProductRepository, ProductRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        services.AddControllers()
+            .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<CreateProductCommandValidator>());
+
+        services.AddScoped<IValidator<CreateProductCommand>, CreateProductCommandValidator>();
+        services.AddScoped<IValidator<UpdateProductCommand>, UpdateProductCommandValidator>();
     }
 
     public  void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -45,7 +63,7 @@ public class Startup
             app.UseSwagger();
             app.UseSwaggerUI();
         }
-
+        app.UseSerilogRequestLogging();
         app.UseHttpsRedirection();
         app.UseAuthorization();
         app.UseRouting();

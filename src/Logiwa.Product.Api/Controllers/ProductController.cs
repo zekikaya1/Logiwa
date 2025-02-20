@@ -1,4 +1,5 @@
-﻿using Logiwa.Application.Models.Product;
+﻿using Logiwa.Application.Commands;
+using Logiwa.Application.Models.Product;
 using Logiwa.Application.Queries;
 using Logiwa.Infrastructure.Persistence;
 using Mapster;
@@ -45,36 +46,23 @@ public class ProductController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] ProductDto productDto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
+        var createProductCommand = productDto.Adapt<CreateProductCommand>();
+        createProductCommand.CreatedDate = DateTime.UtcNow;
 
-        var product = productDto.Adapt<Core.Entities.Product>();
-        product.CreatedDate = DateTime.UtcNow;
+        await _mediator.Send(createProductCommand);
 
-        await _context.Products.AddAsync(product);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetById), new { id = product.Id }, product.Adapt<ProductDto>());
+        return CreatedAtAction(nameof(GetById), new { id = createProductCommand.Id }, createProductCommand.Adapt<ProductDto>());
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] ProductDto productDto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
+        var updateProductCommand = productDto.Adapt<UpdateProductCommand>();
+        updateProductCommand.Id = id;
+        
+        await _mediator.Send(updateProductCommand);
 
-        var product = await _context.Products.FindAsync(id);
-        if (product == null || product.IsDeleted)
-            return NotFound(new { Message = "Product not found" });
-
-        product.Name = productDto.Name;
-        product.Description = productDto.Description;
-        product.StockQuantity = productDto.StockQuantity;
-        product.CategoryId = productDto.CategoryId;
-        product.UpdatedDate = DateTime.UtcNow;
-
-        await _context.SaveChangesAsync();
-        return NoContent();
+        return Ok(new { Message = "Product updated successfully", Data = updateProductCommand });
     }
 
     [HttpDelete("{id}")]

@@ -13,19 +13,32 @@ public class ProductController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly IProductApiClient _productApiClient;
-
-    public ProductController(ApplicationDbContext context, IProductApiClient productApiClient)
+    private readonly ILogger<ProductController> _logger;
+    
+    public ProductController(ApplicationDbContext context, IProductApiClient productApiClient, ILogger<ProductController> logger)
     {
         _context = context;
         _productApiClient = productApiClient;
+        _logger = logger;
         MappingConfig.Configure();
     }
 
     public async Task<IActionResult> Index()
     {
-        var productsResponse = await _productApiClient.GetProducts();
-  
-        return View(productsResponse);
+        try
+        {
+            var responseProducts = await _productApiClient.GetProducts();
+
+            _logger.LogInformation("Successfully retrieved {ProductCount} products from the database.",
+                responseProducts.Count);
+
+            return View(responseProducts);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while fetching products: {ErrorMessage}", ex.Message);
+            return View("Error");
+        }
     }
 
     public async Task<IActionResult> Search(string searchKeyword, int? minStock, int? maxStock)
@@ -36,7 +49,7 @@ public class ProductController : Controller
 
         if (!string.IsNullOrEmpty(searchKeyword))
         {
-            string keyword = searchKeyword.Trim().ToLower(); // Kullanıcının girdiği kelimeyi normalize et
+            string keyword = searchKeyword.Trim().ToLower();
 
             productsQuery = productsQuery.Where(p =>
                 p.Name.ToLower().Contains(keyword) ||
@@ -164,8 +177,7 @@ public class ProductController : Controller
         var productDto = product.Adapt<ProductDto>();
         return View(productDto);
     }
-
-// POST: Product/Delete/{id}
+    
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)

@@ -13,6 +13,18 @@ public class ProductRepository : GenericRepository<Product>, IProductRepository
     {
     }
 
+    public async Task<bool> HasAnyProductByName(string productName )
+    {
+        var result = await Get(x => x.Name == productName);
+        return result is {Count: > 0};
+    }
+
+    public async Task<bool> HasAnyProductById(long prodcutId)
+    {
+        var result = await Get(x => x.Id == prodcutId);
+        return result is {Count: > 0};
+    }
+
     public async Task<List<Product>> GetProducts(CancellationToken cancellationToken)
     {
         return await Get(
