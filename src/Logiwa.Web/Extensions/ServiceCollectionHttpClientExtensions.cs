@@ -25,6 +25,13 @@ namespace Logiwa.Web.Extensions
                 productApiClientConfig.Timeout,
                 productApiClientConfig.RetryCount,
                 productApiClientConfig.RetryDelayInMs);
+            
+            var CategoryApiClientConfig = configuration.GetSection("CategoryApiClient").Get<ClientConfig>();
+            services.AddHttpClient<ICategoryApiClient, CategoryApiClient>(
+                CategoryApiClientConfig.BaseAddress,
+                CategoryApiClientConfig.Timeout,
+                CategoryApiClientConfig.RetryCount,
+                CategoryApiClientConfig.RetryDelayInMs);
 
             services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
         }

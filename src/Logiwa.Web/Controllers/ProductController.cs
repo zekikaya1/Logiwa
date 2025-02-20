@@ -1,7 +1,6 @@
 ﻿using Logiwa.Web.Application.Services;
 using Logiwa.Web.Config;
 using Logiwa.Web.Models;
-using Logiwa.Web.Services;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -11,15 +10,17 @@ namespace Logiwa.Web.Controllers;
 
 public class ProductController : Controller
 {
-    private readonly ApplicationDbContext _context;
     private readonly IProductApiClient _productApiClient;
     private readonly ILogger<ProductController> _logger;
-    
-    public ProductController(ApplicationDbContext context, IProductApiClient productApiClient, ILogger<ProductController> logger)
+    private readonly ICategoryApiClient _categoryApiClient;
+
+
+    public ProductController(IProductApiClient productApiClient, ILogger<ProductController> logger,
+        ICategoryApiClient categoryApiClient)
     {
-        _context = context;
         _productApiClient = productApiClient;
         _logger = logger;
+        _categoryApiClient = categoryApiClient;
         MappingConfig.Configure();
     }
 
@@ -62,9 +63,10 @@ public class ProductController : Controller
 
     public async Task<IActionResult> Create()
     {
-        ViewBag.Categories =
-            (await _context.Categories.Where(c => !c.IsDeleted).ToListAsync())
-            .Adapt<List<CategoryDto>>();
+        var categoriesResponse = await _categoryApiClient.GetCategoriesAsync();
+        var categories = categoriesResponse.Adapt<List<CategoryDto>>();
+
+        ViewBag.Categories = categories;
         return View(new ProductDto());
     }
 
@@ -77,37 +79,41 @@ public class ProductController : Controller
             var product = productDto.Adapt<Product>();
             product.CreatedDate = DateTime.UtcNow;
             product.UpdatedDate = DateTime.UtcNow;
-      
-            
+
+
             await _productApiClient.CreateProduct(productDto);
             _logger.LogInformation("Product created successfully.");
             return RedirectToAction(nameof(Index));
         }
 
+        var categoriesResponse = await _categoryApiClient.GetCategoriesAsync();
+        var categories = categoriesResponse.Adapt<List<CategoryDto>>();
 
-        ViewBag.Categories = (await _context.Categories.Where(c => !c.IsDeleted).ToListAsync())
-            .Adapt<List<CategoryDto>>();
-
+        ViewBag.Categories = categories;
         return View(productDto);
     }
 
     public async Task<IActionResult> Edit(long id)
     {
-        var product = await _context.Products.FindAsync(id);
-        if (product == null || product.IsDeleted)
+        var productResponse = await _productApiClient.GetProductById(id);
+        if (productResponse == null || productResponse.IsDeleted)
         {
             return NotFound();
         }
 
-        var productDto = product.Adapt<ProductDto>();
+        var productDto = productResponse.Adapt<ProductDto>();
 
-        ViewBag.Categories = new SelectList(await _context.Categories.Where(c => !c.IsDeleted).ToListAsync(), "Id",
+        var categoriesResponse = await _categoryApiClient.GetCategoriesAsync();
+        var categories = categoriesResponse.Adapt<List<CategoryDto>>();
+
+        ViewBag.Categories = categories;
+
+        ViewBag.Categories = new SelectList(categories, "Id",
             "Name", productDto.CategoryId);
 
         return View(productDto);
     }
 
-    // POST: Product/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(long id, ProductDto productDto)
@@ -120,28 +126,27 @@ public class ProductController : Controller
         if (ModelState.IsValid)
         {
             var productResponse = await _productApiClient.GetProductById(id);
-            
+
             if (productResponse == null)
             {
                 return NotFound();
             }
-            
+
             productResponse.UpdatedDate = DateTime.UtcNow;
-             await _productApiClient.UpdateProduct(id,productDto);
-            
+            await _productApiClient.UpdateProduct(id, productDto);
+
             return RedirectToAction(nameof(Index));
         }
-        else
-        {
-            foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
-            {
-                Console.WriteLine(error.ErrorMessage);
-            }
 
-            ViewBag.Categories =
-                (await _context.Categories.Where(c => !c.IsDeleted).ToListAsync())
-                .Adapt<List<CategoryDto>>();
+        foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+        {
+            Console.WriteLine(error.ErrorMessage);
         }
+
+        var categoriesResponse = await _categoryApiClient.GetCategoriesAsync();
+        var categories = categoriesResponse.Adapt<List<CategoryDto>>();
+
+        ViewBag.Categories = categories;
 
         return View(productDto);
     }
@@ -149,19 +154,17 @@ public class ProductController : Controller
     [HttpGet]
     public async Task<IActionResult> Delete(long id)
     {
-        var product = await _context.Products
-            .Include(p => p.Category)
-            .FirstOrDefaultAsync(p => p.Id == id);
+        var productResponse = await _productApiClient.GetProductById(id);
 
-        if (product == null)
+        if (productResponse == null)
         {
             return NotFound();
         }
 
-        var productDto = product.Adapt<ProductDto>();
+        var productDto = productResponse.Adapt<ProductDto>();
         return View(productDto);
     }
-    
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(long id)
@@ -174,7 +177,7 @@ public class ProductController : Controller
 
         productResponse.IsDeleted = true;
         productResponse.UpdatedDate = DateTime.UtcNow;
-        await _productApiClient.UpdateProduct(id,productResponse);
+        await _productApiClient.UpdateProduct(id, productResponse);
 
 
         return RedirectToAction(nameof(Index));

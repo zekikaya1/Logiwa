@@ -19,9 +19,9 @@ public class ProductRepository : GenericRepository<Product>, IProductRepository
         return result is {Count: > 0};
     }
 
-    public async Task<bool> HasAnyProductById(long prodcutId)
+    public async Task<bool> HasAnyProductById(long productId)
     {
-        var result = await Get(x => x.Id == prodcutId);
+        var result = await Get(x => x.Id == productId);
         return result is {Count: > 0};
     }
 
@@ -35,16 +35,19 @@ public class ProductRepository : GenericRepository<Product>, IProductRepository
         );
     }
 
-    public async Task<List<Product>> GetProductsByStockRange(int minStock, int maxStock,
-        CancellationToken cancellationToken)
+    public async Task<List<Product>> GetProductsByStockRange(int? minStock, int? maxStock, CancellationToken cancellationToken)
     {
         return await Get(
-            ApplyBusinessRules(p => p.StockQuantity >= minStock && p.StockQuantity <= maxStock),
+            ApplyBusinessRules(p =>
+                (!minStock.HasValue || p.StockQuantity >= minStock.Value) &&
+                (!maxStock.HasValue || p.StockQuantity <= maxStock.Value)
+            ),
             null,
             "Category",
             cancellationToken
         );
     }
+
 
     public async Task<List<Product>> SearchProducts(string keyword, CancellationToken cancellationToken)
     {
@@ -68,7 +71,7 @@ public class ProductRepository : GenericRepository<Product>, IProductRepository
     /// </summary>
     /// <param name="predicate"></param>
     /// <returns></returns>
-    private Expression<Func<Product, bool>> ApplyBusinessRules(Expression<Func<Product, bool>> predicate)
+    private static Expression<Func<Product, bool>> ApplyBusinessRules(Expression<Func<Product, bool>> predicate)
     {
         Expression<Func<Product, bool>> businessRules = p => !p.IsDeleted && p.StockQuantity >= p.Category.MinQuantity;
 

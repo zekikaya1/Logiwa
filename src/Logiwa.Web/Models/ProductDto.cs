@@ -30,12 +30,9 @@ public class ProductDto :IValidatableObject
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if (validationContext.ObjectInstance is ProductDto productDto)
+        if (validationContext.ObjectInstance is ProductDto { Id: > 0 })
         {
-            if (productDto.Id > 0) 
-            {
-                yield break;
-            }
+            yield break;
         }
     }
 }

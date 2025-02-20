@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using Logiwa.Application.Commands; 
+using Logiwa.Application.Commands;
 using Logiwa.Application.Repositories;
 using Logiwa.Application.Validators;
 using Logiwa.Infrastructure.Persistence;
@@ -22,22 +22,12 @@ public class Startup
     public IConfiguration Configuration { get; }
 
     public void ConfigureServices(IServiceCollection services)
-    {           
- 
+    {
         var assembly = typeof(CreateProductCommandValidator).Assembly;
         Console.WriteLine($"Loading Validators from Assembly: {assembly.FullName}");
         services.AddValidatorsFromAssembly(assembly);
-        
-        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateProductCommand).Assembly));
 
-        /*services.AddControllers()
-            .AddFluentValidation(fv =>
-            {
-                fv.RegisterValidatorsFromAssemblyContaining<CreateProductCommandValidator>();
-            });*/
-      //  services.AddValidatorsFromAssembly(typeof(CreateProductCommandValidator).Assembly);
- 
-     //   services.AddFluentValidationAutoValidation();
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateProductCommand).Assembly));
 
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
@@ -45,8 +35,9 @@ public class Startup
 
         services.AddDbContext<LogiwaDbContext>(options =>
             options.UseNpgsql(Configuration["Data:DbContext:DefaultConnection"]));
-        
+
         services.AddTransient<IProductRepository, ProductRepository>();
+        services.AddTransient<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.AddControllers()
@@ -56,20 +47,18 @@ public class Startup
         services.AddScoped<IValidator<UpdateProductCommand>, UpdateProductCommandValidator>();
     }
 
-    public  void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
         if (env.IsDevelopment())
         {
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+
         app.UseSerilogRequestLogging();
         app.UseHttpsRedirection();
         app.UseAuthorization();
         app.UseRouting();
-        app.UseEndpoints(endpoints =>
-        {
-            endpoints.MapControllers();
-        });
+        app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
     }
 }

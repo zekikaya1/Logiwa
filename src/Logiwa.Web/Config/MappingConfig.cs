@@ -3,7 +3,7 @@ using Mapster;
 
 namespace Logiwa.Web.Config;
 
-public class MappingConfig
+public static class MappingConfig
 {
     public static void Configure()
     {

@@ -1,6 +1,4 @@
-﻿ 
-
-using MediatR;
+﻿using MediatR;
 using Logiwa.Application.Models.Product;
 using Logiwa.Application.Repositories;
 using Logiwa.Core.Entities;
@@ -39,13 +37,19 @@ public class SearchProductsHandler : IRequestHandler<SearchProductsQuery, List<P
         {
             products = await _productRepository.SearchProducts(request.SearchKeyword, cancellationToken);
         }
-        else if (request.MinStock.HasValue && request.MaxStock.HasValue)
+        else if (request.MinStock.HasValue || request.MaxStock.HasValue)
         {
-            products = await _productRepository.GetProductsByStockRange(request.MinStock.Value, request.MaxStock.Value, cancellationToken);
+            var minStock = request.MinStock ?? 0;
+            var maxStock = request.MaxStock ?? int.MaxValue;
+
+            products = await _productRepository.GetProductsByStockRange(minStock, maxStock, cancellationToken);
+
+            return products.Adapt<List<ProductDto>>();
         }
+
         else
         {
-            throw new ArgumentException("At least one search criterion must be provided.");
+            products = await _productRepository.GetProducts(cancellationToken);
         }
 
         return products.Adapt<List<ProductDto>>();

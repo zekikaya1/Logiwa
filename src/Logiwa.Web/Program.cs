@@ -1,7 +1,5 @@
 using CorrelationId.DependencyInjection;
 using Logiwa.Web.Extensions;
-using Logiwa.Web.Services;
-using Microsoft.EntityFrameworkCore;
 
 namespace Logiwa.Web;
 
@@ -21,9 +19,6 @@ public class Program
                     .AllowAnyMethod()
                     .AllowAnyHeader());
         });
-
-        builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(builder.Configuration["Data:DbContext:DefaultConnection"]));
 
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddHttpClients(builder.Configuration);

@@ -14,7 +14,7 @@ services:
       - ~/.aspnet/https:/root/.aspnet/https:ro
       - ~/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro
     networks:
-      - demo_network
+      - logiwa_network
 
   logiwa.product.api:
     image: logiwa.product.api
@@ -30,7 +30,7 @@ services:
       - ~/.aspnet/https:/root/.aspnet/https:ro
       - ~/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro
     networks:
-      - demo_network
+      - logiwa_network
 
   postgres:
     image: postgres:15
@@ -44,7 +44,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - demo_network
+      - logiwa_network
 
   redis:
     image: redis:latest
@@ -54,7 +54,7 @@ services:
     volumes:
       - redis_data:/data
     networks:
-      - demo_network
+      - logiwa_network
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.5.3
@@ -66,10 +66,10 @@ services:
     volumes:
       - elastic_data:/usr/share/elasticsearch/data
     networks:
-      - demo_network
+      - logiwa_network
 
 networks:
-  demo_network:
+  logiwa_network:
     driver: bridge
 
 volumes:
