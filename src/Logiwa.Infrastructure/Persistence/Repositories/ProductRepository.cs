@@ -1,4 +1,5 @@
-﻿using Logiwa.Application.Repositories;
+﻿using System.Linq.Expressions;
+using Logiwa.Application.Repositories;
 using Logiwa.Core.Entities;
 
 namespace Logiwa.Infrastructure.Persistence.Repositories;
@@ -7,60 +8,61 @@ using Microsoft.Extensions.Configuration;
 
 public class ProductRepository : GenericRepository<Product>, IProductRepository
 {
-    private readonly IConfiguration _configuration;
-
     public ProductRepository(LogiwaDbContext dbContext, IConfiguration configuration)
         : base(dbContext)
     {
-        _configuration = configuration;
     }
 
     public async Task<List<Product>> GetProducts(CancellationToken cancellationToken)
     {
         return await Get(
-            p => !p.IsDeleted,null,
+            ApplyBusinessRules(p => true),
+            null,
             "Category",
-            cancellationToken);
-    }
-
-    public async Task<Product> GetProductById(long productId, CancellationToken cancellationToken)
-    {
-        return await GetSingleAsync(
-            p => p.Id.Equals(productId) && !p.IsDeleted,
-            "Category",
-            cancellationToken);
-    }
-
-    public async Task<List<Product>> GetProductsByCategoryId(long categoryId, CancellationToken cancellationToken)
-    {
-        return await Get(
-            p => p.CategoryId == categoryId && !p.IsDeleted,
-            cancellationToken: cancellationToken);
+            cancellationToken
+        );
     }
 
     public async Task<List<Product>> GetProductsByStockRange(int minStock, int maxStock,
         CancellationToken cancellationToken)
     {
         return await Get(
-            p => p.StockQuantity >= minStock && p.StockQuantity <= maxStock && !p.IsDeleted,
-            cancellationToken: cancellationToken);
+            ApplyBusinessRules(p => p.StockQuantity >= minStock && p.StockQuantity <= maxStock),
+            null,
+            "Category",
+            cancellationToken
+        );
     }
-
 
     public async Task<List<Product>> SearchProducts(string keyword, CancellationToken cancellationToken)
     {
         return await Get(
-            p => !p.IsDeleted &&
-                 p.Name.ToLower().Contains(keyword.ToLower()) ||
-                 p.Description.ToLower().Contains(keyword.ToLower()) ||
-                 p.Category.Name.ToLower().Contains(keyword.ToLower()), null, "Category",
-            cancellationToken);
+            ApplyBusinessRules(p =>
+                p.Name.ToLower().Contains(keyword.ToLower()) ||
+                p.Description.ToLower().Contains(keyword.ToLower()) ||
+                p.Category.Name.ToLower().Contains(keyword.ToLower())
+            ),
+            null,
+            "Category",
+            cancellationToken
+        );
     }
 
-    public async Task<int> ProductCountByCategoryId(long categoryId, CancellationToken cancellationToken)
+    /// <summary>
+    /// Apply business rules
+    /// Exclude soft deleted products
+    /// Include category relationship
+    /// Products with stock below category's minimum stock cannot be live
+    /// </summary>
+    /// <param name="predicate"></param>
+    /// <returns></returns>
+    private Expression<Func<Product, bool>> ApplyBusinessRules(Expression<Func<Product, bool>> predicate)
     {
-        return await Count(
-            p => p.CategoryId == categoryId && !p.IsDeleted,
-            cancellationToken: cancellationToken);
+        Expression<Func<Product, bool>> businessRules = p => !p.IsDeleted && p.StockQuantity >= p.Category.MinQuantity;
+
+        return Expression.Lambda<Func<Product, bool>>(
+            Expression.AndAlso(businessRules.Body, Expression.Invoke(predicate, businessRules.Parameters[0])),
+            businessRules.Parameters
+        );
     }
 }

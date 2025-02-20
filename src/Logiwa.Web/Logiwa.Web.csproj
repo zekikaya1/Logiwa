@@ -66,4 +66,8 @@
       <_ContentIncludedByDefault Remove="Views\Views\_ViewStart.cshtml" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="wwwroot\Products\" />
+    </ItemGroup>
+
 </Project>

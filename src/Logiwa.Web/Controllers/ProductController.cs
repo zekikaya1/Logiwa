@@ -23,14 +23,9 @@ public class ProductController : Controller
 
     public async Task<IActionResult> Index()
     {
-        var response = await _productApiClient.GetProducts();
-        var products = await _context.Products
-            .Include(p => p.Category)
-            .Where(p => !p.IsDeleted)
-            .Select(p => p.Adapt<ProductDto>())
-            .ToListAsync();
-
-        return View(products);
+        var productsResponse = await _productApiClient.GetProducts();
+  
+        return View(productsResponse);
     }
 
     public async Task<IActionResult> Search(string searchKeyword, int? minStock, int? maxStock)

@@ -1,5 +1,7 @@
-﻿using Logiwa.Application.Commands;
+﻿using FluentValidation.AspNetCore;
+using Logiwa.Application.Commands;
 using Logiwa.Application.Repositories;
+using Logiwa.Application.Validators;
 using Logiwa.Infrastructure.Persistence;
 using Logiwa.Infrastructure.Persistence.Repositories;
 using Logiwa.Product.Api.Extensions;
@@ -21,7 +23,11 @@ public class Startup
  
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateProductCommand).Assembly));
 
-        services.AddControllers();
+        services.AddControllers()
+            .AddFluentValidation(fv =>
+            {
+                fv.RegisterValidatorsFromAssemblyContaining<ProductDtoValidator>();
+            });
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
         services.AddMapsterConfig();
