@@ -105,7 +105,7 @@ INSERT INTO public.category (id, name, min_quantity, created_date, updated_date,
 
 INSERT INTO public.product (id, name, description, stock_quantity, category_id, created_date, updated_date, is_deleted) VALUES (1, 'Telefon', 'Telefon', 5, 1, '2025-02-21 11:18:33.935341', '2025-02-21 11:18:33.940261', false);
 INSERT INTO public.product (id, name, description, stock_quantity, category_id, created_date, updated_date, is_deleted) VALUES (2, 'Elbise', 'elbise', 1, 2, '2025-02-21 11:18:49.026115', '2025-02-21 11:18:49.028012', false);
-
+```
 
 ## Project Overview
 The focus of this MVC project is primarily on the Product API. A layered architecture has not been implemented yet, as the primary objective is to work on the Product API.
