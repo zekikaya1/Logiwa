@@ -96,7 +96,17 @@ CREATE INDEX idx_product_stock_quantity
     ON product (stock_quantity);
 
 CREATE INDEX idx_product_name
-    ON product (name); 
+    ON product (name);
+
+INSERT INTO public.category (id, name, min_quantity, created_date, updated_date, is_deleted) VALUES (1, 'Elektronik', 3, '2025-02-19 12:42:08.000000', '2025-02-19 12:42:10.000000', false);
+INSERT INTO public.category (id, name, min_quantity, created_date, updated_date, is_deleted) VALUES (2, 'Giyim', 2, '2025-02-19 12:42:08.000000', '2025-02-19 12:42:10.000000', false);
+INSERT INTO public.category (id, name, min_quantity, created_date, updated_date, is_deleted) VALUES (3, 'Oyuncak', 5, '2025-02-19 12:42:08.000000', '2025-02-19 12:42:10.000000', false);
+
+
+INSERT INTO public.product (id, name, description, stock_quantity, category_id, created_date, updated_date, is_deleted) VALUES (1, 'Telefon', 'Telefon', 5, 1, '2025-02-21 11:18:33.935341', '2025-02-21 11:18:33.940261', false);
+INSERT INTO public.product (id, name, description, stock_quantity, category_id, created_date, updated_date, is_deleted) VALUES (2, 'Elbise', 'elbise', 1, 2, '2025-02-21 11:18:49.026115', '2025-02-21 11:18:49.028012', false);
+
+
 
 
 
