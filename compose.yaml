@@ -31,6 +31,8 @@ services:
       - ~/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro
     networks:
       - logiwa_network
+    depends_on:
+      - elasticsearch
 
   postgres:
     image: postgres:15
