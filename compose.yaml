@@ -57,6 +57,7 @@ services:
       - logiwa_network
 
   elasticsearch:
+    container_name: es-container
     image: docker.elastic.co/elasticsearch/elasticsearch:8.5.3
     environment:
       - discovery.type=single-node
@@ -67,7 +68,18 @@ services:
       - elastic_data:/usr/share/elasticsearch/data
     networks:
       - logiwa_network
-
+        
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.5.3
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://es-container:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - logiwa_network
 networks:
   logiwa_network:
     driver: bridge

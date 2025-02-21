@@ -11,18 +11,25 @@ public class ProductRepository : GenericRepository<Product>, IProductRepository
     {
     }
 
-    public async Task<bool> HasAnyProductByName(string productName )
+    public async Task<bool> HasAnyProductByName(string productName)
     {
-        var result = await Get(x => x.Name.ToLower() == productName.ToLower());
-        return result is {Count: > 0};
+        var result = await Get(
+            ApplyBusinessRules(x => x.Name.ToLower() == productName.ToLower()),
+            cancellationToken: default
+        );
+        return result is { Count: > 0 };
     }
 
     public async Task<bool> HasAnyProductById(long productId)
     {
-        var result = await Get(x => x.Id == productId);
-        return result is {Count: > 0};
+        var result = await Get(
+            ApplyBusinessRules(x => x.Id == productId),
+            cancellationToken: default
+        );
+        return result is { Count: > 0 };
     }
-    
+
+
     public async Task<Product> GetProductById(long productId, CancellationToken cancellationToken)
     {
         return await GetSingleAsync(
@@ -42,7 +49,8 @@ public class ProductRepository : GenericRepository<Product>, IProductRepository
         );
     }
 
-    public async Task<List<Product>> GetProductsByStockRange(int? minStock, int? maxStock, CancellationToken cancellationToken)
+    public async Task<List<Product>> GetProductsByStockRange(int? minStock, int? maxStock,
+        CancellationToken cancellationToken)
     {
         return await Get(
             ApplyBusinessRules(p =>

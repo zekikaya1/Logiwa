@@ -1,10 +1,8 @@
 ﻿using Logiwa.Web.Application.Services;
-using Logiwa.Web.Config;
 using Logiwa.Web.Models;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 
 namespace Logiwa.Web.Controllers;
 
@@ -21,7 +19,6 @@ public class ProductController : Controller
         _productApiClient = productApiClient;
         _logger = logger;
         _categoryApiClient = categoryApiClient;
-        MappingConfig.Configure();
     }
 
     public async Task<IActionResult> Index()
@@ -78,9 +75,9 @@ public class ProductController : Controller
         {
             if (ModelState.IsValid)
             {
-                var product = productDto.Adapt<Product>();
-                product.CreatedDate = DateTime.UtcNow;
-                product.UpdatedDate = DateTime.UtcNow;
+                 
+                productDto.CreatedDate = DateTime.UtcNow;
+                productDto.UpdatedDate = DateTime.UtcNow;
 
                 await _productApiClient.CreateProduct(productDto);
                 _logger.LogInformation("Product created successfully.");
