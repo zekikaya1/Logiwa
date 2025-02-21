@@ -107,6 +107,23 @@ INSERT INTO public.product (id, name, description, stock_quantity, category_id, 
 INSERT INTO public.product (id, name, description, stock_quantity, category_id, created_date, updated_date, is_deleted) VALUES (2, 'Elbise', 'elbise', 1, 2, '2025-02-21 11:18:49.026115', '2025-02-21 11:18:49.028012', false);
 
 
+## Project Overview
+The focus of this MVC project is primarily on the Product API. A layered architecture has not been implemented yet, as the primary objective is to work on the Product API.
+
+Pending Tasks
+Logging to Kibana: The project needs to log information to Kibana. This will allow better monitoring and troubleshooting.
+
+Category Caching with Redis: To improve the response times, categories can be cached in Redis for 5 minutes. This will speed up subsequent requests for category data.
+
+JWT Authentication for Product API: Adding JWT tokens to the Product API is recommended. This would provide secure authentication, ensuring that only authorized users can access the API. Even though this is an internal application, it's a good practice to implement authorization to protect sensitive data.
+
+Unittest
+
+
+
+
+
+
 
 
 
